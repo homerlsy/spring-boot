@@ -59,10 +59,10 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 import org.springframework.boot.autoconfigure.orm.jpa.mapping.NonAnnotatedEntity;
 import org.springframework.boot.autoconfigure.orm.jpa.test.City;
 import org.springframework.boot.autoconfigure.transaction.jta.JtaAutoConfiguration;
-import org.springframework.boot.jdbc.init.dependency.DependsOnDataSourceInitialization;
 import org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy;
 import org.springframework.boot.orm.jpa.hibernate.SpringJtaPlatform;
 import org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy;
+import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.boot.test.context.assertj.AssertableApplicationContext;
 import org.springframework.boot.test.context.runner.ContextConsumer;
 import org.springframework.context.ApplicationEvent;
@@ -409,7 +409,7 @@ class HibernateJpaAutoConfigurationTests extends AbstractJpaAutoConfigurationTes
 	}
 
 	@Test
-	void vendorPropertiesWithDdlAutoPropertyIsSet() {
+	void vendorPropertiesWhenDdlAutoPropertyIsSet() {
 		contextRunner().withPropertyValues("spring.jpa.hibernate.ddl-auto=update")
 				.run(vendorProperties((vendorProperties) -> {
 					assertThat(vendorProperties).doesNotContainKeys(AvailableSettings.HBM2DDL_DATABASE_ACTION);
@@ -418,7 +418,7 @@ class HibernateJpaAutoConfigurationTests extends AbstractJpaAutoConfigurationTes
 	}
 
 	@Test
-	void vendorPropertiesWithDdlAutoPropertyAndHibernatePropertiesAreSet() {
+	void vendorPropertiesWhenDdlAutoPropertyAndHibernatePropertiesAreSet() {
 		contextRunner()
 				.withPropertyValues("spring.jpa.hibernate.ddl-auto=update",
 						"spring.jpa.properties.hibernate.hbm2ddl.auto=create-drop")
@@ -429,7 +429,7 @@ class HibernateJpaAutoConfigurationTests extends AbstractJpaAutoConfigurationTes
 	}
 
 	@Test
-	void vendorPropertiesWithDdlAutoPropertyIsSetToNone() {
+	void vendorPropertiesWhenDdlAutoPropertyIsSetToNone() {
 		contextRunner().withPropertyValues("spring.jpa.hibernate.ddl-auto=none")
 				.run(vendorProperties((vendorProperties) -> assertThat(vendorProperties).doesNotContainKeys(
 						AvailableSettings.HBM2DDL_DATABASE_ACTION, AvailableSettings.HBM2DDL_AUTO)));
@@ -501,7 +501,7 @@ class HibernateJpaAutoConfigurationTests extends AbstractJpaAutoConfigurationTes
 
 	@Configuration(proxyBeanMethods = false)
 	@TestAutoConfigurationPackage(City.class)
-	@DependsOnDataSourceInitialization
+	@DependsOnDatabaseInitialization
 	static class TestInitializedJpaConfiguration {
 
 		private boolean called;

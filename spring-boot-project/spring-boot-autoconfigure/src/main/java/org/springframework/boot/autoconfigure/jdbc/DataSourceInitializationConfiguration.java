@@ -41,30 +41,28 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceInitializationConfi
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.boot.jdbc.DataSourceInitializationMode;
 import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
-import org.springframework.boot.jdbc.init.DataSourceInitializationSettings;
-import org.springframework.boot.jdbc.init.ScriptDataSourceInitializer;
-import org.springframework.boot.jdbc.init.dependency.DataSourceInitializationDependencyConfigurer;
+import org.springframework.boot.jdbc.init.DataSourceScriptDatabaseInitializer;
+import org.springframework.boot.sql.init.DatabaseInitializationSettings;
+import org.springframework.boot.sql.init.dependency.DatabaseInitializationDependencyConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.util.StringUtils;
 
 /**
  * Configuration for {@link DataSource} initialization using a
- * {@link ScriptDataSourceInitializer} with DDL and DML scripts.
+ * {@link DataSourceScriptDatabaseInitializer} with DDL and DML scripts.
  *
  * @author Andy Wilkinson
  */
 @Deprecated
 class DataSourceInitializationConfiguration {
 
-	private static DataSource determineDataSource(Supplier<DataSource> dataSource, String username, String password,
-			DataSourceProperties properties) {
+	private static DataSource determineDataSource(Supplier<DataSource> dataSource, String username, String password) {
 		if (StringUtils.hasText(username) && StringUtils.hasText(password)) {
 			DataSourceBuilder.derivedFrom(dataSource.get()).type(SimpleDriverDataSource.class).username(username)
 					.password(password).build();
@@ -85,36 +83,36 @@ class DataSourceInitializationConfiguration {
 	// Fully-qualified to work around javac bug in JDK 1.8
 	@org.springframework.context.annotation.Configuration(proxyBeanMethods = false)
 	@org.springframework.context.annotation.Conditional(DifferentCredentialsCondition.class)
-	@org.springframework.context.annotation.Import(DataSourceInitializationDependencyConfigurer.class)
+	@org.springframework.context.annotation.Import(DatabaseInitializationDependencyConfigurer.class)
 	@ConditionalOnSingleCandidate(DataSource.class)
-	@ConditionalOnMissingBean(ScriptDataSourceInitializer.class)
+	@ConditionalOnMissingBean(DataSourceScriptDatabaseInitializer.class)
 	static class InitializationSpecificCredentialsDataSourceInitializationConfiguration {
 
 		@Bean
-		ScriptDataSourceInitializer ddlOnlyScriptDataSourceInitializer(ObjectProvider<DataSource> dataSource,
-				DataSourceProperties properties, ResourceLoader resourceLoader) {
-			DataSourceInitializationSettings settings = new DataSourceInitializationSettings();
+		DataSourceScriptDatabaseInitializer ddlOnlyScriptDataSourceInitializer(ObjectProvider<DataSource> dataSource,
+				DataSourceProperties properties) {
+			DatabaseInitializationSettings settings = new DatabaseInitializationSettings();
 			settings.setSchemaLocations(scriptLocations(properties.getSchema(), "schema", properties.getPlatform()));
 			settings.setContinueOnError(properties.isContinueOnError());
 			settings.setSeparator(properties.getSeparator());
 			settings.setEncoding(properties.getSqlScriptEncoding());
 			DataSource initializationDataSource = determineDataSource(dataSource::getObject,
-					properties.getSchemaUsername(), properties.getSchemaPassword(), properties);
+					properties.getSchemaUsername(), properties.getSchemaPassword());
 			return new InitializationModeDataSourceScriptDatabaseInitializer(initializationDataSource, settings,
 					properties.getInitializationMode());
 		}
 
 		@Bean
 		@DependsOn("ddlOnlyScriptDataSourceInitializer")
-		ScriptDataSourceInitializer dmlOnlyScriptDataSourceInitializer(ObjectProvider<DataSource> dataSource,
-				DataSourceProperties properties, ResourceLoader resourceLoader) {
-			DataSourceInitializationSettings settings = new DataSourceInitializationSettings();
+		DataSourceScriptDatabaseInitializer dmlOnlyScriptDataSourceInitializer(ObjectProvider<DataSource> dataSource,
+				DataSourceProperties properties) {
+			DatabaseInitializationSettings settings = new DatabaseInitializationSettings();
 			settings.setDataLocations(scriptLocations(properties.getData(), "data", properties.getPlatform()));
 			settings.setContinueOnError(properties.isContinueOnError());
 			settings.setSeparator(properties.getSeparator());
 			settings.setEncoding(properties.getSqlScriptEncoding());
 			DataSource initializationDataSource = determineDataSource(dataSource::getObject,
-					properties.getDataUsername(), properties.getDataPassword(), properties);
+					properties.getDataUsername(), properties.getDataPassword());
 			return new InitializationModeDataSourceScriptDatabaseInitializer(initializationDataSource, settings,
 					properties.getInitializationMode());
 		}
@@ -141,16 +139,16 @@ class DataSourceInitializationConfiguration {
 
 	// Fully-qualified to work around javac bug in JDK 1.8
 	@org.springframework.context.annotation.Configuration(proxyBeanMethods = false)
-	@org.springframework.context.annotation.Import(DataSourceInitializationDependencyConfigurer.class)
+	@org.springframework.context.annotation.Import(DatabaseInitializationDependencyConfigurer.class)
 	@org.springframework.context.annotation.Conditional(DataSourceInitializationCondition.class)
 	@ConditionalOnSingleCandidate(DataSource.class)
-	@ConditionalOnMissingBean(ScriptDataSourceInitializer.class)
+	@ConditionalOnMissingBean(DataSourceScriptDatabaseInitializer.class)
 	static class SharedCredentialsDataSourceInitializationConfiguration {
 
 		@Bean
-		ScriptDataSourceInitializer scriptDataSourceInitializer(DataSource dataSource, DataSourceProperties properties,
-				ResourceLoader resourceLoader) {
-			DataSourceInitializationSettings settings = new DataSourceInitializationSettings();
+		DataSourceScriptDatabaseInitializer scriptDataSourceInitializer(DataSource dataSource,
+				DataSourceProperties properties) {
+			DatabaseInitializationSettings settings = new DatabaseInitializationSettings();
 			settings.setSchemaLocations(scriptLocations(properties.getSchema(), "schema", properties.getPlatform()));
 			settings.setDataLocations(scriptLocations(properties.getData(), "data", properties.getPlatform()));
 			settings.setContinueOnError(properties.isContinueOnError());
@@ -188,12 +186,12 @@ class DataSourceInitializationConfiguration {
 
 	}
 
-	static class InitializationModeDataSourceScriptDatabaseInitializer extends ScriptDataSourceInitializer {
+	static class InitializationModeDataSourceScriptDatabaseInitializer extends DataSourceScriptDatabaseInitializer {
 
 		private final DataSourceInitializationMode mode;
 
 		InitializationModeDataSourceScriptDatabaseInitializer(DataSource dataSource,
-				DataSourceInitializationSettings settings, DataSourceInitializationMode mode) {
+				DatabaseInitializationSettings settings, DataSourceInitializationMode mode) {
 			super(dataSource, settings);
 			this.mode = mode;
 		}

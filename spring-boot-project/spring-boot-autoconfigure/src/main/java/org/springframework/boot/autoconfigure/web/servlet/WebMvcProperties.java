@@ -251,10 +251,6 @@ public class WebMvcProperties {
 				throw new IncompatibleConfigurationException("spring.mvc.pathmatch.matching-strategy",
 						"spring.mvc.pathmatch.use-registered-suffix-pattern");
 			}
-			if (!this.getServlet().getServletMapping().equals("/")) {
-				throw new IncompatibleConfigurationException("spring.mvc.pathmatch.matching-strategy",
-						"spring.mvc.servlet.path");
-			}
 		}
 	}
 
@@ -438,7 +434,7 @@ public class WebMvcProperties {
 		/**
 		 * Choice of strategy for matching request paths against registered mappings.
 		 */
-		private MatchingStrategy matchingStrategy = MatchingStrategy.ANT_PATH_MATCHER;
+		private MatchingStrategy matchingStrategy = MatchingStrategy.PATH_PATTERN_PARSER;
 
 		/**
 		 * Whether to use suffix pattern match (".*") when matching patterns to requests.
@@ -553,7 +549,7 @@ public class WebMvcProperties {
 
 	/**
 	 * Locale resolution options.
-	 * @deprecated since 2.4.0 in favor of
+	 * @deprecated since 2.4.0 for removal in 2.6.0 in favor of
 	 * {@link org.springframework.boot.autoconfigure.web.WebProperties.LocaleResolver}
 	 */
 	@Deprecated

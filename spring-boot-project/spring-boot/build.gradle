@@ -35,6 +35,7 @@ dependencies {
 	optional("io.netty:netty-tcnative-boringssl-static")
 	optional("io.projectreactor:reactor-tools")
 	optional("io.projectreactor.netty:reactor-netty-http")
+	optional("io.r2dbc:r2dbc-pool")
 	optional("io.rsocket:rsocket-core")
 	optional("io.rsocket:rsocket-transport-netty")
 	optional("io.undertow:undertow-servlet") {
@@ -46,6 +47,7 @@ dependencies {
 	optional("junit:junit")
 	optional("org.apache.commons:commons-dbcp2")
 	optional("org.apache.httpcomponents:httpclient")
+	optional("org.apache.httpcomponents.client5:httpclient5")
 	optional("org.apache.logging.log4j:log4j-api")
 	optional("org.apache.logging.log4j:log4j-core")
 	optional("org.apache.tomcat.embed:tomcat-embed-core")
@@ -96,8 +98,10 @@ dependencies {
 	testImplementation("mysql:mysql-connector-java")
 	testImplementation("net.sourceforge.jtds:jtds")
 	testImplementation("org.apache.derby:derby")
-	testImplementation("org.apache.httpcomponents:httpasyncclient")
 	testImplementation("org.awaitility:awaitility")
+	testImplementation("org.eclipse.jetty:jetty-client")
+	testImplementation("org.eclipse.jetty.http2:http2-client")
+	testImplementation("org.eclipse.jetty.http2:http2-http-client-transport")
 	testImplementation("org.firebirdsql.jdbc:jaybird-jdk18")
 	testImplementation("org.hsqldb:hsqldb")
 	testImplementation("org.junit.jupiter:junit-jupiter")
@@ -118,11 +122,12 @@ dependencies {
 }
 
 task extractTomcatConfigProperties(type: Sync) {
-	dependsOn configurations.tomcatDistribution
 	destinationDir = file(tomcatConfigProperties)
-	from(zipTree(configurations.tomcatDistribution.incoming.files.singleFile).matching {
-		include '**/conf/catalina.properties'
-	}.singleFile)
+	from {
+		zipTree(configurations.tomcatDistribution.incoming.files.singleFile).matching {
+			include '**/conf/catalina.properties'
+		}.singleFile
+	}
 }
 
 sourceSets {

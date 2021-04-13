@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ public class DocumentConfigurationProperties extends DefaultTask {
 				.addSection("mail").withKeyPrefixes("spring.mail", "spring.sendgrid").addSection("cache")
 				.withKeyPrefixes("spring.cache").addSection("server").withKeyPrefixes("server").addSection("web")
 				.withKeyPrefixes("spring.hateoas", "spring.http", "spring.servlet", "spring.jersey", "spring.mvc",
-						"spring.resources", "spring.session", "spring.web", "spring.webflux")
+						"spring.netty", "spring.resources", "spring.session", "spring.web", "spring.webflux")
 				.addSection("json").withKeyPrefixes("spring.jackson", "spring.gson").addSection("rsocket")
 				.withKeyPrefixes("spring.rsocket").addSection("templating")
 				.withKeyPrefixes("spring.freemarker", "spring.groovy", "spring.mustache", "spring.thymeleaf")

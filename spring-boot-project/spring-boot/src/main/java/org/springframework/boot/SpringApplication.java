@@ -47,7 +47,6 @@ import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.boot.context.properties.source.ConfigurationPropertySources;
 import org.springframework.boot.convert.ApplicationConversionService;
 import org.springframework.boot.web.reactive.context.AnnotationConfigReactiveWebServerApplicationContext;
-import org.springframework.boot.web.reactive.context.StandardReactiveWebEnvironment;
 import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextInitializer;
@@ -82,7 +81,6 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StopWatch;
 import org.springframework.util.StringUtils;
-import org.springframework.web.context.support.StandardServletEnvironment;
 
 /**
  * Class that can be used to bootstrap and launch a Spring application from a Java main
@@ -164,7 +162,8 @@ public class SpringApplication {
 	/**
 	 * The class name of application context that will be used by default for non-web
 	 * environments.
-	 * @deprecated since 2.4.0 in favour of using a {@link ApplicationContextFactory}
+	 * @deprecated since 2.4.0 for removal in 2.6.0 in favor of using a
+	 * {@link ApplicationContextFactory}
 	 */
 	@Deprecated
 	public static final String DEFAULT_CONTEXT_CLASS = "org.springframework.context."
@@ -173,7 +172,8 @@ public class SpringApplication {
 	/**
 	 * The class name of application context that will be used by default for web
 	 * environments.
-	 * @deprecated since 2.4.0 in favour of using an {@link ApplicationContextFactory}
+	 * @deprecated since 2.4.0 for removal in 2.6.0 in favor of using an
+	 * {@link ApplicationContextFactory}
 	 */
 	@Deprecated
 	public static final String DEFAULT_SERVLET_WEB_CONTEXT_CLASS = "org.springframework.boot."
@@ -182,7 +182,8 @@ public class SpringApplication {
 	/**
 	 * The class name of application context that will be used by default for reactive web
 	 * environments.
-	 * @deprecated since 2.4.0 in favour of using an {@link ApplicationContextFactory}
+	 * @deprecated since 2.4.0 for removal in 2.6.0 in favor of using an
+	 * {@link ApplicationContextFactory}
 	 */
 	@Deprecated
 	public static final String DEFAULT_REACTIVE_WEB_CONTEXT_CLASS = "org.springframework."
@@ -388,11 +389,11 @@ public class SpringApplication {
 	private Class<? extends StandardEnvironment> deduceEnvironmentClass() {
 		switch (this.webApplicationType) {
 		case SERVLET:
-			return StandardServletEnvironment.class;
+			return ApplicationServletEnvironment.class;
 		case REACTIVE:
-			return StandardReactiveWebEnvironment.class;
+			return ApplicationReactiveWebEnvironment.class;
 		default:
-			return StandardEnvironment.class;
+			return ApplicationEnvironment.class;
 		}
 	}
 
@@ -490,11 +491,11 @@ public class SpringApplication {
 		}
 		switch (this.webApplicationType) {
 		case SERVLET:
-			return new StandardServletEnvironment();
+			return new ApplicationServletEnvironment();
 		case REACTIVE:
-			return new StandardReactiveWebEnvironment();
+			return new ApplicationReactiveWebEnvironment();
 		default:
-			return new StandardEnvironment();
+			return new ApplicationEnvironment();
 		}
 	}
 
@@ -1056,7 +1057,7 @@ public class SpringApplication {
 	 * {@link BootstrapRegistry}.
 	 * @param bootstrapper the bootstraper
 	 * @since 2.4.0
-	 * @deprecated since 2.4.5 in favor of
+	 * @deprecated since 2.4.5 for removal in 2.6 in favor of
 	 * {@link #addBootstrapRegistryInitializer(BootstrapRegistryInitializer)}
 	 */
 	@Deprecated
@@ -1230,7 +1231,7 @@ public class SpringApplication {
 	 * applications or {@link AnnotationConfigApplicationContext} for non web based
 	 * applications.
 	 * @param applicationContextClass the context class to set
-	 * @deprecated since 2.4.0 in favor of
+	 * @deprecated since 2.4.0 for removal in 2.6.0 in favor of
 	 * {@link #setApplicationContextFactory(ApplicationContextFactory)}
 	 */
 	@Deprecated
